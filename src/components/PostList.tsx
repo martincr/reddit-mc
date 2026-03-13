@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { PostCard } from "@/components/PostCard";
 import { PostListSkeleton } from "@/components/PostListSkeleton";
-import { getTopPosts } from "@/lib/reddit";
 import type { RedditPost } from "@/types/reddit";
 
 export function PostList() {
@@ -12,8 +11,12 @@ export function PostList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getTopPosts(30)
-      .then(setPosts)
+    fetch("/api/posts")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setPosts(data);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
